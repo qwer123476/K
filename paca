@@ -4,46 +4,15 @@ local Window = Rayfield:CreateWindow({
    Name = "키보드 핵",
    LoadingTitle = "Paca Hub",
    LoadingSubtitle = "paca hub loading..",
-   ConfigurationSaving = {
-      Enabled = false
-   },
-   Discord = {
-      Enabled = false
-   },
+   ConfigurationSaving = { Enabled = false },
+   Discord = { Enabled = false },
    KeySystem = false
 })
 
-local CoreGui = game:GetService("CoreGui")
-pcall(function()
-    if CoreGui:FindFirstChild("RayfieldReOpen") then
-        CoreGui.RayfieldReOpen:Destroy()
-    end
-end)
-
-local gui = Instance.new("ScreenGui")
-gui.Name = "RayfieldReOpen"
-gui.Parent = CoreGui
-gui.ResetOnSpawn = false
-
-local button = Instance.new("TextButton")
-button.Parent = gui
-button.Size = UDim2.new(0, 0, 0, 0)
-button.Position = UDim2.new(0, 20, 0.5, -25)
-button.Text = "O"
-button.TextScaled = true
-button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-button.TextColor3 = Color3.new(1, 1, 1)
-button.BorderSizePixel = 0
-
-Instance.new("UICorner", button).CornerRadius = UDim.new(1, 0)
-
-button.MouseButton1Click:Connect(function()
-    for _, v in pairs(CoreGui:GetDescendants()) do
-        if v.Name == "Rayfield" and v:IsA("ScreenGui") then
-            v.Enabled = true
-        end
-    end
-end)
+local StageTab = Window:CreateTab("스테이지 선택", 4483345998)
+local FarmTab = Window:CreateTab("오토팜", 4483345998)
+local TreadmillTab = Window:CreateTab("러닝머신 오토팜", 4483345998)
+local playerTab = Window:CreateTab("플레이어설정", 44833646998)
 
 local StageCoordinates = {
     [1]  = Vector3.new(-17, 13, 287),
@@ -67,21 +36,180 @@ local StageCoordinates = {
 local SelectedStage = 1
 local FarmDelay = 6
 local AutoFarmEnabled = false
+local TreadmillEnabled = false
+local AntiAfkEnabled = false
+local AntiAfkConnection = nil
+
+local plr = game.Players.LocalPlayer
+local walkSpeedT = false
+local walkSpeedV = 80
+local jumpPowerT = false
+local jumpPowerV = 60
+
+local noClipT = false
+local noClipConnection = nil
+
+local FLYING = false
+local iyflyspeed = 1
+local flyKeyDownConnection, flyKeyUpConnection = nil, nil
+local BG, BV = nil, nil
+
+local RunService = game:GetService("RunService")
+local VirtualUser = game:GetService("VirtualUser")
+local UserInputService = game:GetService("UserInputService")
 
 local function teleportToStage(stageNum)
-    local player = game.Players.LocalPlayer
-    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+    if plr and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
         local targetPos = StageCoordinates[stageNum]
         if targetPos then
-            player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
+            plr.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
         end
     end
 end
 
-local StageTab = Window:CreateTab("스테이지 선택", 4483345998)
- local palyerTab = Window:CreateTab("플레이어설정", 44833646998)
- 
-StageTab:CreateLabel("이동할 스테이지를 먼저 선택하세요.")
+function updateWalkSpeedF()
+    local function apply(char)
+        local hum = char:WaitForChild("Humanoid")
+        if walkSpeedT then
+            hum.WalkSpeed = walkSpeedV
+            hum:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+                if walkSpeedT then hum.WalkSpeed = walkSpeedV end
+            end)
+        else
+            hum.WalkSpeed = 16
+        end
+    end
+    if plr.Character then apply(plr.Character) end
+    plr.CharacterAdded:Connect(apply)
+end
+
+function updateJumpPowerF()
+    local function apply(char)
+        local hum = char:WaitForChild("Humanoid")
+        if jumpPowerT then
+            hum.JumpPower = jumpPowerV
+            hum:GetPropertyChangedSignal("JumpPower"):Connect(function()
+                if jumpPowerT then hum.JumpPower = jumpPowerV end
+            end)
+        else
+            hum.JumpPower = 26
+        end
+    end
+    if plr.Character then apply(plr.Character) end
+    plr.CharacterAdded:Connect(apply)
+end
+
+function updateNoClipF()
+    if noClipConnection then
+        noClipConnection:Disconnect()
+        noClipConnection = nil
+    end
+    if not noClipT then return end
+
+    noClipConnection = RunService.Stepped:Connect(function()
+        if not noClipT or not plr.Character then
+            if noClipConnection then
+                noClipConnection:Disconnect()
+                noClipConnection = nil
+            end
+            return
+        end
+        for _, child in pairs(plr.Character:GetDescendants()) do
+            if child:IsA("BasePart") and child.CanCollide == true then
+                child.CanCollide = false
+            end
+        end
+    end)
+end
+
+function sFLY()
+    FLYING = true
+    local char = plr.Character
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local T = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
+    if not T then return end
+
+    if humanoid then humanoid.PlatformStand = true end
+
+    BG = Instance.new('BodyGyro')
+    BV = Instance.new('BodyVelocity')
+    BG.P = 9e4
+    BG.Parent = T
+    BV.Parent = T
+    BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+    BG.CFrame = T.CFrame
+    BV.Velocity = Vector3.new(0, 0, 0)
+    BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+
+    local CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+    
+    flyKeyDownConnection = UserInputService.InputBegan:Connect(function(input, gpe)
+        if gpe then return end
+        if input.KeyCode == Enum.KeyCode.W then CONTROL.F = 1
+        elseif input.KeyCode == Enum.KeyCode.S then CONTROL.B = -1
+        elseif input.KeyCode == Enum.KeyCode.A then CONTROL.L = -1
+        elseif input.KeyCode == Enum.KeyCode.D then CONTROL.R = 1
+        elseif input.KeyCode == Enum.KeyCode.E then CONTROL.Q = 1
+        elseif input.KeyCode == Enum.KeyCode.Q then CONTROL.E = -1
+        end
+    end)
+
+    flyKeyUpConnection = UserInputService.InputEnded:Connect(function(input, gpe)
+        if input.KeyCode == Enum.KeyCode.W then CONTROL.F = 0
+        elseif input.KeyCode == Enum.KeyCode.S then CONTROL.B = 0
+        elseif input.KeyCode == Enum.KeyCode.A then CONTROL.L = 0
+        elseif input.KeyCode == Enum.KeyCode.D then CONTROL.R = 0
+        elseif input.KeyCode == Enum.KeyCode.E then CONTROL.Q = 0
+        elseif input.KeyCode == Enum.KeyCode.Q then CONTROL.E = 0
+        end
+    end)
+
+    task.spawn(function()
+        local camera = workspace.CurrentCamera
+        while FLYING and T and T.Parent do
+            if humanoid then humanoid.PlatformStand = true end
+            BG.CFrame = camera.CFrame
+            
+            local dir = Vector3.new()
+            if CONTROL.F + CONTROL.B ~= 0 or CONTROL.L + CONTROL.R ~= 0 or CONTROL.Q + CONTROL.E ~= 0 then
+                dir = ((camera.CFrame.LookVector * (CONTROL.F + CONTROL.B)) + (camera.CFrame.RightVector * (CONTROL.L + CONTROL.R)) + (Vector3.new(0,1,0) * (CONTROL.Q + CONTROL.E)))
+            end
+            
+            BV.Velocity = dir * (iyflyspeed * 50)
+            task.wait()
+        end
+    end)
+end
+
+function NOFLY()
+    FLYING = false
+    if flyKeyDownConnection then flyKeyDownConnection:Disconnect() flyKeyDownConnection = nil end
+    if flyKeyUpConnection then flyKeyUpConnection:Disconnect() flyKeyUpConnection = nil end
+    if BG then BG:Destroy() BG = nil end
+    if BV then BV:Destroy() BV = nil end
+    if plr.Character then
+        local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then humanoid.PlatformStand = false end
+    end
+end
+
+function updateAntiAfkF()
+    if AntiAfkConnection then
+        AntiAfkConnection:Disconnect()
+        AntiAfkConnection = nil
+    end
+    if AntiAfkEnabled then
+        AntiAfkConnection = plr.Idled:Connect(function()
+            VirtualUser:Button2Down(Vector2.new(0, 0), game.Workspace.CurrentCamera.CFrame)
+            task.wait(1)
+            VirtualUser:Button2Up(Vector2.new(0, 0), game.Workspace.CurrentCamera.CFrame)
+        end)
+    end
+end
+StageTab:CreateLabel("이동할 스테이지 선택하세요")
+StageTab:CreateLabel("자신의 맞는 레벨만 보상들어옵니다.")
+
 
 for i = 1, #StageCoordinates do
     StageTab:CreateButton({
@@ -97,8 +225,6 @@ for i = 1, #StageCoordinates do
         end,
     })
 end
-
-local FarmTab = Window:CreateTab("오토팜", 4483345998)
 
 FarmTab:CreateButton({
     Name = "선택한 스테이지로 즉시 이동",
@@ -137,97 +263,41 @@ FarmTab:CreateToggle({
         end
     end,
 })
-function updateWalkSpeedF()
-     function apply(char)
-         hum = char:WaitForChild("Humanoid")
 
-        if walkSpeedT then
-            hum.WalkSpeed = walkSpeedV
-            hum:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-                if walkSpeedT then
-                    hum.WalkSpeed = walkSpeedV
+TreadmillTab:CreateToggle({
+    Name = "러닝머신 오토팜 시작/정지",
+    CurrentValue = false,
+    Flag = "TreadmillToggle",
+    Callback = function(Value)
+        TreadmillEnabled = Value
+        if TreadmillEnabled then
+            task.spawn(function()
+                while TreadmillEnabled do
+                    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                        plr.Character.HumanoidRootPart.CFrame = CFrame.new(18.552, 10.831, -41.459)
+                        plr.Character.HumanoidRootPart.Anchored = true
+                    end
+                    task.wait(0.5)
                 end
             end)
         else
-            hum.WalkSpeed = 16
-        end
-    end
-
-    if plr.Character then
-        apply(plr.Character)
-    end
-
-    plr.CharacterAdded:Connect(apply)
-end
-
-function updateJumpPowerF()
-     function apply(char)
-         hum = char:WaitForChild("Humanoid")
-
-        if jumpPowerT then
-            hum.JumpPower = jumpPowerV
-            hum:GetPropertyChangedSignal("JumpPower"):Connect(function()
-                if jumpPowerT then
-                    hum.JumpPower = jumpPowerV
-                end
-            end)
-        else
-            hum.JumpPower = 26
-        end
-    end
-
-    if plr.Character then
-        apply(plr.Character)
-    end
-
-    plr.CharacterAdded:Connect(apply)
-end
-
- RunService = game:GetService("RunService")
-
- NO_CLIP_PARTS = {
-    "Head",
-    "Torso",
-    "Left Arm", 
-    "Left Leg",
-    "Right Arm",
-    "Right Leg"
-}
-
-function updateNoClipF()
-     char = plr.Character
-    if not char then return end
-
-    if noClipConnection then
-        noClipConnection:Disconnect()
-        noClipConnection = nil
-    end
-
-    if not noClipT then
-        restoreCollision(char)
-        return
-    end
-    
-     hrp = char:WaitForChild("HumanoidRootPart")
-     hum = char:WaitForChild("Humanoid")
-
-    noClipConnection = RunService.Stepped:Connect(function()
-        if not noClipT or not char or not char.Parent then
-            if noClipConnection then
-                noClipConnection:Disconnect()
-                noClipConnection = nil
-            end
-            return
-        end
-
-        for _, partName in ipairs(NO_CLIP_PARTS) do
-             part = char:FindFirstChild(partName)
-            if part and part:IsA("BasePart") then
-                part.CanCollide = false
+            if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                plr.Character.HumanoidRootPart.Anchored = false
             end
         end
-    end)
-end
+    end
+})
+
+TreadmillTab:CreateToggle({
+    Name = "안티 AFK 튕김방지",
+    CurrentValue = false,
+    Flag = "AntiAfkToggle",
+    Callback = function(Value)
+        AntiAfkEnabled = Value
+        updateAntiAfkF()
+    end
+})
+
 playerTab:CreateToggle({
     Name = "이동 속도",
     CurrentValue = false,
@@ -238,22 +308,17 @@ playerTab:CreateToggle({
     end
 })
 
-local walkSpeedInput = playerTab:CreateInput({
+playerTab:CreateInput({
     Name = "값",
-    CurrentValue = 16,
+    CurrentValue = 80,
     PlaceholderText = "Value",
     RemoveTextAfterFocusLost = true,
     Flag = "29",
     Callback = function(Value)
-        walkSpeedV = Value
+        walkSpeedV = tonumber(Value) or 80
         updateWalkSpeedF()
     end
 })
-walkSpeedInput:Set(80)
-
-
-
-
 
 playerTab:CreateToggle({
     Name = "점프 높이",
@@ -265,23 +330,21 @@ playerTab:CreateToggle({
     end
 })
 
-local jumpPowerInput = playerTab:CreateInput({
+playerTab:CreateInput({
     Name = "값",
-    CurrentValue = 24,
+    CurrentValue = 60,
     PlaceholderText = "Value",
     RemoveTextAfterFocusLost = false,
     Flag = "31",
     Callback = function(Value)
-        jumpPowerV = Value
+        jumpPowerV = tonumber(Value) or 60
         updateJumpPowerF()
     end
 })
-jumpPowerInput:Set(60)
-
-
 
 playerTab:CreateSection("나머지")
-local NoClipToggle = playerTab:CreateToggle({
+
+playerTab:CreateToggle({
     Name = "노클립",
     CurrentValue = false,
     Flag = "32",
@@ -290,3 +353,4 @@ local NoClipToggle = playerTab:CreateToggle({
         updateNoClipF()
     end
 })
+
