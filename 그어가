@@ -1,0 +1,94 @@
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Window = Rayfield:CreateWindow({Name = "Grower Garden [최종 통합본]", LoadingTitle = "로딩 중...", ConfigurationSaving = {Enabled = false}, KeySystem = false})
+
+
+_G.AutoHarvest = false
+_G.TweenSpeed = 50
+local FarmDelay = 3
+local MyAssignedPlot = nil
+
+
+local function SafeTween(targetCFrame)
+    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    local tween = TweenService:Create(hrp, TweenInfo.new((hrp.Position - targetCFrame.Position).Magnitude / _G.TweenSpeed, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
+    tween:Play() tween.Completed:Wait()
+end
+
+local function FindNearestPlot()
+    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return nil end
+    local gardens = workspace:FindFirstChild("Gardens")
+    if not gardens then return nil end
+    local closest, dist = nil, math.huge
+    for _, plot in ipairs(gardens:GetChildren()) do
+        local part = plot.PrimaryPart or plot:FindFirstChildWhichIsA("BasePart", true)
+        if part then
+            local d = (part.Position - hrp.Position).Magnitude
+            if d < dist then dist = d; closest = plot end
+        end
+    end
+    return closest
+end
+
+
+local FarmTab = Window:CreateTab("Harvest", 4483362458)
+FarmTab:CreateSlider({Name = "텔포(Tween) 속도", Range = {20, 2000}, Increment = 10, CurrentValue = 50, Callback = function(v) _G.TweenSpeed = v end})
+FarmTab:CreateSlider({Name = "수확 주기", Range = {0.11, 30}, Increment = 1, CurrentValue = 3, Callback = function(v) FarmDelay = v end})
+
+FarmTab:CreateToggle({
+   Name = "수확",
+   Callback = function(Value)
+      _G.AutoHarvest = Value
+      if Value then
+          task.spawn(function()
+              while _G.AutoHarvest do
+                  MyAssignedPlot = FindNearestPlot()
+                  if MyAssignedPlot then
+                      local items = MyAssignedPlot:GetDescendants()
+                      local found = false
+                      for _, v in ipairs(items) do
+                          if not _G.AutoHarvest then break end
+                          if v:IsA("ClickDetector") or v:IsA("ProximityPrompt") then
+                              found = true
+                              SafeTween(v.Parent.CFrame + Vector3.new(0, 1.5, 0))
+                              if v:IsA("ClickDetector") then fireclickdetector(v)
+                              else v:InputHoldBegin() v:InputHoldEnd() end
+                          end
+                      end
+                      -- [잠수 기능 복구] 수확물이 없으면 땅속 35스터드 아래로
+                      if not found then 
+                          local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                          if hrp then hrp.CFrame = hrp.CFrame - Vector3.new(0, 35, 0) end
+                          task.wait(5) 
+                      end
+                  end
+                  task.wait(FarmDelay)
+              end
+          end)
+      end
+   end,
+})
+local CharTab = Window:CreateTab("Character", 4483362458)
+CharTab:CreateInput({Name = "이동 속도 설정", PlaceholderText = "기본 16", Callback = function(v) LocalPlayer.Character.Humanoid.WalkSpeed = tonumber(v) end})
+CharTab:CreateInput({Name = "점프력 설정", PlaceholderText = "기본 50", Callback = function(v) LocalPlayer.Character.Humanoid.JumpPower = tonumber(v) end})
+
+_G.NoClip = false
+CharTab:CreateToggle({Name = "노클립", Callback = function(v) _G.NoClip = v end})
+RunService.Stepped:Connect(function()
+    if _G.NoClip and LocalPlayer.Character then
+        for _, p in pairs(LocalPlayer.Character:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end
+    end
+end)
+
+_G.InfJump = false
+CharTab:CreateToggle({Name = "무한 점프", Callback = function(v) _G.InfJump = v end})
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if _G.InfJump then LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping") end
+end)
