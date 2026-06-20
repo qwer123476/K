@@ -79,7 +79,8 @@ local function teleportToStage(stageNum)
 end
 
 local StageTab = Window:CreateTab("스테이지 선택", 4483345998)
-
+ local palyerTab = Window:CreateTab("플레이어설정", 44833646998)
+ 
 StageTab:CreateLabel("이동할 스테이지를 먼저 선택하세요.")
 
 for i = 1, #StageCoordinates do
