@@ -33,6 +33,13 @@ local StageCoordinates = {
     [16] = Vector3.new(-14002, 759, 3066)
 }
 
+local StageLevels = {
+    [1] = "Lv.1+",   [2] = "Lv.8+",   [3] = "Lv.10+",  [4] = "Lv.15+",
+    [5] = "Lv.20+",  [6] = "Lv.30+",  [7] = "Lv.35+",  [8] = "Lv.45+",
+    [9] = "Lv.55+",  [10] = "Lv.70+", [11] = "Lv.80+", [12] = "Lv.100+",
+    [13] = "Lv.110+", [14] = "Lv.115+", [15] = "Lv.120+", [16] = "Lv.130+"
+}
+
 local SelectedStage = 1
 local FarmDelay = 6
 local AutoFarmEnabled = false
@@ -49,22 +56,141 @@ local jumpPowerV = 60
 local noClipT = false
 local noClipConnection = nil
 
-local FLYING = false
-local iyflyspeed = 1
-local flyKeyDownConnection, flyKeyUpConnection = nil, nil
-local BG, BV = nil, nil
-
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
-local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
 
-local function teleportToStage(stageNum)
-    if plr and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-        local targetPos = StageCoordinates[stageNum]
-        if targetPos then
-            plr.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
+-- ============================================================================
+-- [최종 단계] 클라이언트 메모리 변조 및 서버 패킷 데이터 동기화 우회
+-- ============================================================================
+task.spawn(function()
+    local gmt = getrawmetatable(game)
+    setreadonly(gmt, false)
+    local oldNamecall = gmt.__namecall
+    local oldIndex = gmt.__index
+
+    gmt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        -- 서버 킥 함수 원천 무력화
+        if (method == "Kick" or method == "kick") and self == plr then
+            return nil
         end
+        -- 안티치트 데이터 로그 업로드 무력화
+        if method == "FireServer" or method == "InvokeServer" then
+            local n = tostring(self)
+            if string.find(n, "Kick") or string.find(n, "Ban") or string.find(n, "Check") or string.find(n, "Cheat") then
+                return nil
+            end
+        end
+        return oldNamecall(self, ...)
+    end)
+
+    gmt.__index = newcclosure(function(self, key)
+        if (key == "Kick" or key == "kick") and self == plr then
+            return newcclosure(function() return nil end)
+        end
+        return oldIndex(self, key)
+    end)
+    setreadonly(gmt, true)
+end)
+
+-- [패시브] 물리 패킷 세탁 및 휴머노이드 가짜 상태 조작 함수
+local function removeInertia(char)
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    local hum = char:WaitForChild("Humanoid")
+    
+    RunService.Heartbeat:Connect(function()
+        if char and hrp and hrp.Parent then
+            -- 서버가 클라이언트의 속도를 검증할 때 가짜 정상 속도(0,0,0) 패킷 송신
+            if AutoFarmEnabled then
+                hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                -- 서버에게 현재 날아다니는 상태가 아닌 평지에서 뛰는 상태(Running)라고 거짓 보고
+                hum:ChangeState(Enum.HumanoidStateType.Running)
+            elseif hum.MoveDirection.Magnitude == 0 and not hum.PlatformStand and not TreadmillEnabled then
+                local currentVel = hrp.AssemblyLinearVelocity
+                hrp.AssemblyLinearVelocity = Vector3.new(0, currentVel.Y, 0)
+            end
+            
+            -- 서버의 시뮬레이션 반경 연산 가로채기
+            pcall(function()
+                settings().Physics.AllowSleep = false
+                if sethiddenproperty then
+                    sethiddenproperty(plr, "SimulationRadius", 0) -- 소유권을 리셋하여 검증 탈피
+                end
+            end)
+        end
+    end)
+    
+    hum.StateChanged:Connect(function(oldState, newState)
+        if newState == Enum.HumanoidStateType.Landed then
+            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+        end
+    end)
+end
+
+if plr.Character then task.spawn(removeInertia, plr.Character) end
+plr.CharacterAdded:Connect(function(char) task.spawn(removeInertia, char) end)
+
+-- [물리 변조] 서버 안티치트 감지 무력화 비행 모듈
+local function flyToStage(stageNum, sideOffset)
+    local char = plr.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hrp or not hum then return end
+
+    local targetPos = StageCoordinates[stageNum]
+    if not targetPos then return end
+    if sideOffset then
+        targetPos = targetPos + Vector3.new(sideOffset, 0, 0)
     end
+
+    -- 기존 물리 축적 데이터 완전 세탁
+    hrp.AssemblyLinearVelocity = Vector3.new(0,0,0)
+    hrp.AssemblyAngularVelocity = Vector3.new(0,0,0)
+
+    local tempBG = Instance.new("BodyGyro")
+    local tempBV = Instance.new("BodyVelocity")
+    tempBG.P = 9e4
+    tempBG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+    tempBG.CFrame = hrp.CFrame
+    tempBG.Parent = hrp
+
+    tempBV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+    tempBV.Velocity = Vector3.new(0, 0, 0)
+    tempBV.Parent = hrp
+
+    -- 이동 연프가 시작할 때 가짜 상태 주입 시작
+    hum.PlatformStand = false
+
+    while (hrp.Position - targetPos).Magnitude > 5 and (AutoFarmEnabled or not AutoFarmEnabled) do
+        if not char.Parent or not hrp.Parent then break end
+        
+        -- 레이캐스트 충돌 추적 안티치트 방지용 실시간 노클립 패시브화
+        for _, child in pairs(char:GetDescendants()) do
+            if child:IsA("BasePart") then
+                child.CanCollide = false
+            end
+        end
+        
+        local direction = (targetPos - hrp.Position).Unit
+        tempBV.Velocity = direction * 290 -- 서버 측 연속 위치 계산 필터 마진 속도
+        tempBG.CFrame = CFrame.new(hrp.Position, targetPos)
+        
+        -- 하트비트 프레임 단위로 조절하여 서버 패킷 변조 싱크 일치
+        RunService.Heartbeat:Wait()
+    end
+
+    tempBV:Destroy()
+    tempBG:Destroy()
+    
+    -- 도달 즉시 앵커링 연산 후 패킷 정제
+    hrp.CFrame = CFrame.new(targetPos)
+    hrp.AssemblyLinearVelocity = Vector3.new(0,0,0)
+    hrp.Anchored = true
+    task.wait(0.01)
+    hrp.Anchored = false
 end
 
 function updateWalkSpeedF()
@@ -122,78 +248,6 @@ function updateNoClipF()
     end)
 end
 
-function sFLY()
-    FLYING = true
-    local char = plr.Character
-    if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local T = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
-    if not T then return end
-
-    if humanoid then humanoid.PlatformStand = true end
-
-    BG = Instance.new('BodyGyro')
-    BV = Instance.new('BodyVelocity')
-    BG.P = 9e4
-    BG.Parent = T
-    BV.Parent = T
-    BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-    BG.CFrame = T.CFrame
-    BV.Velocity = Vector3.new(0, 0, 0)
-    BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-
-    local CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
-    
-    flyKeyDownConnection = UserInputService.InputBegan:Connect(function(input, gpe)
-        if gpe then return end
-        if input.KeyCode == Enum.KeyCode.W then CONTROL.F = 1
-        elseif input.KeyCode == Enum.KeyCode.S then CONTROL.B = -1
-        elseif input.KeyCode == Enum.KeyCode.A then CONTROL.L = -1
-        elseif input.KeyCode == Enum.KeyCode.D then CONTROL.R = 1
-        elseif input.KeyCode == Enum.KeyCode.E then CONTROL.Q = 1
-        elseif input.KeyCode == Enum.KeyCode.Q then CONTROL.E = -1
-        end
-    end)
-
-    flyKeyUpConnection = UserInputService.InputEnded:Connect(function(input, gpe)
-        if input.KeyCode == Enum.KeyCode.W then CONTROL.F = 0
-        elseif input.KeyCode == Enum.KeyCode.S then CONTROL.B = 0
-        elseif input.KeyCode == Enum.KeyCode.A then CONTROL.L = 0
-        elseif input.KeyCode == Enum.KeyCode.D then CONTROL.R = 0
-        elseif input.KeyCode == Enum.KeyCode.E then CONTROL.Q = 0
-        elseif input.KeyCode == Enum.KeyCode.Q then CONTROL.E = 0
-        end
-    end)
-
-    task.spawn(function()
-        local camera = workspace.CurrentCamera
-        while FLYING and T and T.Parent do
-            if humanoid then humanoid.PlatformStand = true end
-            BG.CFrame = camera.CFrame
-            
-            local dir = Vector3.new()
-            if CONTROL.F + CONTROL.B ~= 0 or CONTROL.L + CONTROL.R ~= 0 or CONTROL.Q + CONTROL.E ~= 0 then
-                dir = ((camera.CFrame.LookVector * (CONTROL.F + CONTROL.B)) + (camera.CFrame.RightVector * (CONTROL.L + CONTROL.R)) + (Vector3.new(0,1,0) * (CONTROL.Q + CONTROL.E)))
-            end
-            
-            BV.Velocity = dir * (iyflyspeed * 50)
-            task.wait()
-        end
-    end)
-end
-
-function NOFLY()
-    FLYING = false
-    if flyKeyDownConnection then flyKeyDownConnection:Disconnect() flyKeyDownConnection = nil end
-    if flyKeyUpConnection then flyKeyUpConnection:Disconnect() flyKeyUpConnection = nil end
-    if BG then BG:Destroy() BG = nil end
-    if BV then BV:Destroy() BV = nil end
-    if plr.Character then
-        local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then humanoid.PlatformStand = false end
-    end
-end
-
 function updateAntiAfkF()
     if AntiAfkConnection then
         AntiAfkConnection:Disconnect()
@@ -202,18 +256,25 @@ function updateAntiAfkF()
     if AntiAfkEnabled then
         AntiAfkConnection = plr.Idled:Connect(function()
             VirtualUser:Button2Down(Vector2.new(0, 0), game.Workspace.CurrentCamera.CFrame)
-            task.wait(1)
+            task.wait(0.5)
             VirtualUser:Button2Up(Vector2.new(0, 0), game.Workspace.CurrentCamera.CFrame)
+            
+            pcall(function()
+                GuiService:Select(game.CoreGui:FindFirstChildOfClass("ScreenGui"))
+                task.wait(0.1)
+                GuiService:Select(nil)
+            end)
         end)
     end
 end
+
 StageTab:CreateLabel("이동할 스테이지 선택하세요")
 StageTab:CreateLabel("자신의 맞는 레벨만 보상들어옵니다.")
 
-
 for i = 1, #StageCoordinates do
+    local levelPrefix = StageLevels[i] or "[Lv.1+]"
     StageTab:CreateButton({
-        Name = "스테이지 " .. i,
+        Name = levelPrefix .. " 스테이지 " .. i,
         Callback = function()
             SelectedStage = i
             Rayfield:Notify({
@@ -227,9 +288,14 @@ for i = 1, #StageCoordinates do
 end
 
 FarmTab:CreateButton({
-    Name = "선택한 스테이지로 즉시 이동",
+    Name = "선택한 스테이지로 즉시 비행",
     Callback = function()
-        teleportToStage(SelectedStage)
+        task.spawn(function()
+            local currentAutoFarmState = AutoFarmEnabled
+            AutoFarmEnabled = true
+            flyToStage(SelectedStage)
+            AutoFarmEnabled = currentAutoFarmState
+        end)
     end,
 })
 
@@ -255,9 +321,15 @@ FarmTab:CreateToggle({
         AutoFarmEnabled = Value
         if AutoFarmEnabled then
             task.spawn(function()
+                local toggleSide = false
                 while AutoFarmEnabled do
-                    teleportToStage(SelectedStage)
-                    task.wait(FarmDelay)
+                    local startTime = tick()
+                    while tick() - startTime < FarmDelay and AutoFarmEnabled do
+                        local offset = toggleSide and 2 or -2
+                        flyToStage(SelectedStage, offset)
+                        toggleSide = not toggleSide
+                        task.wait(1)
+                    end
                 end
             end)
         end
@@ -277,7 +349,14 @@ TreadmillTab:CreateToggle({
                         plr.Character.HumanoidRootPart.CFrame = CFrame.new(18.552, 10.831, -41.459)
                         plr.Character.HumanoidRootPart.Anchored = true
                     end
-                    task.wait(0.5)
+                    task.wait(1)
+                    
+                    if not TreadmillEnabled then break end
+                    
+                    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                        plr.Character.HumanoidRootPart.Anchored = false
+                    end
+                    task.wait(1)
                 end
             end)
         else
@@ -353,4 +432,3 @@ playerTab:CreateToggle({
         updateNoClipF()
     end
 })
-
