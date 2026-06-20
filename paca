@@ -1,0 +1,291 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "키보드 핵",
+   LoadingTitle = "Paca Hub",
+   LoadingSubtitle = "paca hub loading..",
+   ConfigurationSaving = {
+      Enabled = false
+   },
+   Discord = {
+      Enabled = false
+   },
+   KeySystem = false
+})
+
+local CoreGui = game:GetService("CoreGui")
+pcall(function()
+    if CoreGui:FindFirstChild("RayfieldReOpen") then
+        CoreGui.RayfieldReOpen:Destroy()
+    end
+end)
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "RayfieldReOpen"
+gui.Parent = CoreGui
+gui.ResetOnSpawn = false
+
+local button = Instance.new("TextButton")
+button.Parent = gui
+button.Size = UDim2.new(0, 0, 0, 0)
+button.Position = UDim2.new(0, 20, 0.5, -25)
+button.Text = "O"
+button.TextScaled = true
+button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+button.TextColor3 = Color3.new(1, 1, 1)
+button.BorderSizePixel = 0
+
+Instance.new("UICorner", button).CornerRadius = UDim.new(1, 0)
+
+button.MouseButton1Click:Connect(function()
+    for _, v in pairs(CoreGui:GetDescendants()) do
+        if v.Name == "Rayfield" and v:IsA("ScreenGui") then
+            v.Enabled = true
+        end
+    end
+end)
+
+local StageCoordinates = {
+    [1]  = Vector3.new(-17, 13, 287),
+    [2]  = Vector3.new(-18, 14, 507),
+    [3]  = Vector3.new(-18, 82, 774),
+    [4]  = Vector3.new(-15, 82, 1108),
+    [5]  = Vector3.new(-15, 83, 1409),
+    [6]  = Vector3.new(-539, 61, 1451),
+    [7]  = Vector3.new(-1009, 59, 1448),
+    [8]  = Vector3.new(-1121, 300, 1447),
+    [9]  = Vector3.new(-2972, 300, 1447),
+    [10] = Vector3.new(-3941, 304, 1448),
+    [11] = Vector3.new(-4368, 477, 1511),
+    [12] = Vector3.new(-5342, 479, 1456),
+    [13] = Vector3.new(-6808, 525, 1467),
+    [14] = Vector3.new(-8354, 490, 1470),
+    [15] = Vector3.new(-8352, 490, 1469),
+    [16] = Vector3.new(-14002, 759, 3066)
+}
+
+local SelectedStage = 1
+local FarmDelay = 6
+local AutoFarmEnabled = false
+
+local function teleportToStage(stageNum)
+    local player = game.Players.LocalPlayer
+    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPos = StageCoordinates[stageNum]
+        if targetPos then
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
+        end
+    end
+end
+
+local StageTab = Window:CreateTab("스테이지 선택", 4483345998)
+
+StageTab:CreateLabel("이동할 스테이지를 먼저 선택하세요.")
+
+for i = 1, #StageCoordinates do
+    StageTab:CreateButton({
+        Name = "스테이지 " .. i,
+        Callback = function()
+            SelectedStage = i
+            Rayfield:Notify({
+                Title = "선택 완료",
+                Content = "스테이지 " .. i .. " 선택 완료! 오토팜 칸으로 가주세요.",
+                Duration = 4,
+                Image = 4483345998,
+            })
+        end,
+    })
+end
+
+local FarmTab = Window:CreateTab("오토팜", 4483345998)
+
+FarmTab:CreateButton({
+    Name = "선택한 스테이지로 즉시 이동",
+    Callback = function()
+        teleportToStage(SelectedStage)
+    end,
+})
+
+FarmTab:CreateLabel("⚠️ 한번만 이동합니다. 오토팜은 밑의 토글입니다.")
+
+FarmTab:CreateSlider({
+    Name = "오토팜 주기 설정",
+    Range = {1, 60},
+    Increment = 1,
+    Suffix = "초",
+    CurrentValue = 6,
+    Flag = "FarmDelaySlider",
+    Callback = function(Value)
+        FarmDelay = Value
+    end
+})
+
+FarmTab:CreateToggle({
+    Name = "오토팜 시작/정지",
+    CurrentValue = false,
+    Flag = "AutoFarmToggle",
+    Callback = function(Value)
+        AutoFarmEnabled = Value
+        if AutoFarmEnabled then
+            task.spawn(function()
+                while AutoFarmEnabled do
+                    teleportToStage(SelectedStage)
+                    task.wait(FarmDelay)
+                end
+            end)
+        end
+    end,
+})
+function updateWalkSpeedF()
+     function apply(char)
+         hum = char:WaitForChild("Humanoid")
+
+        if walkSpeedT then
+            hum.WalkSpeed = walkSpeedV
+            hum:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+                if walkSpeedT then
+                    hum.WalkSpeed = walkSpeedV
+                end
+            end)
+        else
+            hum.WalkSpeed = 16
+        end
+    end
+
+    if plr.Character then
+        apply(plr.Character)
+    end
+
+    plr.CharacterAdded:Connect(apply)
+end
+
+function updateJumpPowerF()
+     function apply(char)
+         hum = char:WaitForChild("Humanoid")
+
+        if jumpPowerT then
+            hum.JumpPower = jumpPowerV
+            hum:GetPropertyChangedSignal("JumpPower"):Connect(function()
+                if jumpPowerT then
+                    hum.JumpPower = jumpPowerV
+                end
+            end)
+        else
+            hum.JumpPower = 26
+        end
+    end
+
+    if plr.Character then
+        apply(plr.Character)
+    end
+
+    plr.CharacterAdded:Connect(apply)
+end
+
+ RunService = game:GetService("RunService")
+
+ NO_CLIP_PARTS = {
+    "Head",
+    "Torso",
+    "Left Arm", 
+    "Left Leg",
+    "Right Arm",
+    "Right Leg"
+}
+
+function updateNoClipF()
+     char = plr.Character
+    if not char then return end
+
+    if noClipConnection then
+        noClipConnection:Disconnect()
+        noClipConnection = nil
+    end
+
+    if not noClipT then
+        restoreCollision(char)
+        return
+    end
+    
+     hrp = char:WaitForChild("HumanoidRootPart")
+     hum = char:WaitForChild("Humanoid")
+
+    noClipConnection = RunService.Stepped:Connect(function()
+        if not noClipT or not char or not char.Parent then
+            if noClipConnection then
+                noClipConnection:Disconnect()
+                noClipConnection = nil
+            end
+            return
+        end
+
+        for _, partName in ipairs(NO_CLIP_PARTS) do
+             part = char:FindFirstChild(partName)
+            if part and part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end)
+end
+playerTab:CreateToggle({
+    Name = "이동 속도",
+    CurrentValue = false,
+    Flag = "28",
+    Callback = function(Value)
+        walkSpeedT = Value 
+        updateWalkSpeedF()
+    end
+})
+
+local walkSpeedInput = playerTab:CreateInput({
+    Name = "값",
+    CurrentValue = 16,
+    PlaceholderText = "Value",
+    RemoveTextAfterFocusLost = true,
+    Flag = "29",
+    Callback = function(Value)
+        walkSpeedV = Value
+        updateWalkSpeedF()
+    end
+})
+walkSpeedInput:Set(80)
+
+
+
+
+
+playerTab:CreateToggle({
+    Name = "점프 높이",
+    CurrentValue = false,
+    Flag = "30",
+    Callback = function(Value)
+        jumpPowerT = Value
+        updateJumpPowerF()
+    end
+})
+
+local jumpPowerInput = playerTab:CreateInput({
+    Name = "값",
+    CurrentValue = 24,
+    PlaceholderText = "Value",
+    RemoveTextAfterFocusLost = false,
+    Flag = "31",
+    Callback = function(Value)
+        jumpPowerV = Value
+        updateJumpPowerF()
+    end
+})
+jumpPowerInput:Set(60)
+
+
+
+playerTab:CreateSection("나머지")
+local NoClipToggle = playerTab:CreateToggle({
+    Name = "노클립",
+    CurrentValue = false,
+    Flag = "32",
+    Callback = function(Value)
+        noClipT = Value
+        updateNoClipF()
+    end
+})
