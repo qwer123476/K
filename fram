@@ -14,7 +14,9 @@ _G.NoClip = false
 _G.AutoFarm = false
 _G.AutoRockFarm = false
 _G.AutoTouch = false
-
+Players = game:GetService("Players")
+plr = game.Players.LocalPlayer
+cam = workspace.CurrentCamera
 -- [카메라 완벽 고정]
 RunService.RenderStepped:Connect(function()
     if (_G.AutoFarm or _G.AutoRockFarm) and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head") then
