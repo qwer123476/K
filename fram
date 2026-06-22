@@ -6,7 +6,9 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local Camera = workspace.CurrentCamera
 
 local Window = Rayfield:CreateWindow({Name = "Farmstead Master Final", LoadingTitle = "System Online", LoadingSubtitle = "Automation Loaded"})
-local Tab = Window:CreateTab("Automation", nil)
+local Tab = Window:CreateTab("오토팜류", nil)
+local 1Tab = Window:CreateTab("오토팜 속도", nil)
+local 2Tab = Window:CreateTab("메이플시럽", nil)
 
 _G.FlySpeed = 50
 _G.NoClip = false
@@ -43,8 +45,8 @@ local function ClickCenter()
 end
 
 -- 1. [슬라이더] 비행 속도
-Tab:CreateSlider({
-   Name = "Fly Speed",
+1Tab:CreateSlider({
+   Name = "비행속도",
    Range = {10, 200},
    Increment = 10,
    Suffix = "Studs/s",
@@ -53,8 +55,8 @@ Tab:CreateSlider({
 })
 
 -- 2. [토글] 근처 버튼 자동 터치
-Tab:CreateToggle({
-   Name = "Auto Touch Nearby Buttons",
+2Tab:CreateToggle({
+   Name = "메이플 시럽 자동 토클",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoTouch = Value
@@ -75,10 +77,10 @@ Tab:CreateToggle({
       end
    end
 })
-
+print("나무 오토팜 로드완료")
 -- 3. [토글] 나무 자동 파밍 (-5 스터드, 4스터드 거리)
 Tab:CreateToggle({
-   Name = "Auto Farm Tree (-5 Studs, 4S Dist)",
+   Name = "나무 오토팜(도끼 들으셈)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoFarm = Value
@@ -117,10 +119,10 @@ Tab:CreateToggle({
       end
    end
 })
-
+print("오토팜 돌 로드")
 -- 4. [토글] 돌 자동 파밍 (+2 스터드, 4스터드 거리)
 Tab:CreateToggle({
-   Name = "Auto Farm Rock (+2 Studs, 4S Dist)",
+   Name = "돌 오토팜(곡괭이 들으셈)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoRockFarm = Value
@@ -159,3 +161,43 @@ Tab:CreateToggle({
       end
    end
 })
+-- [안티치트 패시브 바이패스 - 상단에 배치]
+task.spawn(function()
+    local mt = getrawmetatable(game)
+    local oldNamecall = mt.__namecall
+    setreadonly(mt, false)
+
+    -- 1. 하위 속성 보호 감지 차단
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        -- 킥(Kick)이나 원격 이벤트 검증 차단
+        if method == "Kick" or method == "kick" then
+            return nil 
+        end
+        return oldNamecall(self, ...)
+    end)
+    setreadonly(mt, true)
+
+    -- 2. 게임 하위 로그 및 에러 보고 감지 비활성화
+    local LogService = game:GetService("LogService")
+    LogService:ClearOutput()
+    
+    -- 3. 휴머노이드 속성 및 위치 관련 변조 감지 무력화 시도
+    local player = game:GetService("Players").LocalPlayer
+    local function disableAntiCheat(char)
+        if char then
+            local humanoid = char:FindFirstChild("Humanoid")
+            if humanoid then
+                -- 휴머노이드 속성 고정
+                humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+                    humanoid.WalkSpeed = 16
+                end)
+            end
+        end
+    end
+    
+    player.CharacterAdded:Connect(disableAntiCheat)
+    if player.Character then disableAntiCheat(player.Character) end
+end)
+print("바이패스&안티치트우회 활성화")
+print("전체 스크립트 로드완료")
