@@ -9,6 +9,7 @@ local Window = Rayfield:CreateWindow({Name = "Farmstead Master Final", LoadingTi
 local Tab = Window:CreateTab("오토팜류", nil)
 local 1Tab = Window:CreateTab("오토팜 속도", nil)
 local 2Tab = Window:CreateTab("메이플시럽", nil)
+local palyerTab = Window:CreateTab("플레이어", nil)
 
 _G.FlySpeed = 50
 _G.NoClip = false
@@ -160,6 +161,156 @@ Tab:CreateToggle({
          task.wait(1)
       end
    end
+})
+
+
+function updateWalkSpeedF()
+     function apply(char)
+         hum = char:WaitForChild("Humanoid")
+
+        if walkSpeedT then
+            hum.WalkSpeed = walkSpeedV
+            hum:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+                if walkSpeedT then
+                    hum.WalkSpeed = walkSpeedV
+                end
+            end)
+        else
+            hum.WalkSpeed = 16
+        end
+    end
+
+    if plr.Character then
+        apply(plr.Character)
+    end
+
+    plr.CharacterAdded:Connect(apply)
+end
+
+function updateJumpPowerF()
+     function apply(char)
+         hum = char:WaitForChild("Humanoid")
+
+        if jumpPowerT then
+            hum.JumpPower = jumpPowerV
+            hum:GetPropertyChangedSignal("JumpPower"):Connect(function()
+                if jumpPowerT then
+                    hum.JumpPower = jumpPowerV
+                end
+            end)
+        else
+            hum.JumpPower = 26
+        end
+    end
+
+    if plr.Character then
+        apply(plr.Character)
+    end
+
+    plr.CharacterAdded:Connect(apply)
+end
+
+ RunService = game:GetService("RunService")
+
+ NO_CLIP_PARTS = {
+    "Head",
+    "Torso",
+    "Left Arm", 
+    "Left Leg",
+    "Right Arm",
+    "Right Leg"
+}
+
+function updateNoClipF()
+     char = plr.Character
+    if not char then return end
+
+    if noClipConnection then
+        noClipConnection:Disconnect()
+        noClipConnection = nil
+    end
+
+    if not noClipT then
+        restoreCollision(char)
+        return
+    end
+    
+     hrp = char:WaitForChild("HumanoidRootPart")
+     hum = char:WaitForChild("Humanoid")
+
+    noClipConnection = RunService.Stepped:Connect(function()
+        if not noClipT or not char or not char.Parent then
+            if noClipConnection then
+                noClipConnection:Disconnect()
+                noClipConnection = nil
+            end
+            return
+        end
+
+        for _, partName in ipairs(NO_CLIP_PARTS) do
+             part = char:FindFirstChild(partName)
+            if part and part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end)
+end
+playerTab:CreateToggle({
+    Name = "이동 속도",
+    CurrentValue = false,
+    Flag = "28",
+    Callback = function(Value)
+        walkSpeedT = Value 
+        updateWalkSpeedF()
+    end
+})
+
+local walkSpeedInput = playerTab:CreateInput({
+    Name = "값",
+    CurrentValue = 16,
+    PlaceholderText = "Value",
+    RemoveTextAfterFocusLost = true,
+    Flag = "29",
+    Callback = function(Value)
+        walkSpeedV = Value
+        updateWalkSpeedF()
+    end
+})
+walkSpeedInput:Set(80)
+
+
+
+
+
+playerTab:CreateToggle({
+    Name = "점프 높이",
+    CurrentValue = false,
+    Flag = "30",
+    Callback = function(Value)
+        jumpPowerT = Value
+        updateJumpPowerF()
+    end
+})
+
+local jumpPowerInput = playerTab:CreateInput({
+    Name = "값",
+    CurrentValue = 24,
+    PlaceholderText = "Value",
+    RemoveTextAfterFocusLost = false,
+    Flag = "31",
+    Callback = function(Value)
+        jumpPowerV = Value
+        updateJumpPowerF()
+    end
+})
+local NoClipToggle = playerTab:CreateToggle({
+    Name = "노클립",
+    CurrentValue = false,
+    Flag = "32",
+    Callback = function(Value)
+        noClipT = Value
+        updateNoClipF()
+    end
 })
 -- [안티치트 패시브 바이패스 - 상단에 배치]
 task.spawn(function()
