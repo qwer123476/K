@@ -6,10 +6,7 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local Camera = workspace.CurrentCamera
 
 local Window = Rayfield:CreateWindow({Name = "Farmstead Master Final", LoadingTitle = "System Online", LoadingSubtitle = "Automation Loaded"})
-local ATab = Window:CreateTab("오토팜류", nil)
-local BTab = Window:CreateTab("오토팜 속도", nil)
-local CTab = Window:CreateTab("메이플시럽", nil)
-local playerTab = Window:CreateTab("플레이어", nil)
+local Tab = Window:CreateTab("Automation", nil)
 
 _G.FlySpeed = 50
 _G.NoClip = false
@@ -46,9 +43,9 @@ local function ClickCenter()
 end
 
 -- 1. [슬라이더] 비행 속도
-BTab:CreateSlider({
-   Name = "비행속도",
-   Range = {1, 100},
+Tab:CreateSlider({
+   Name = "Fly Speed",
+   Range = {10, 200},
    Increment = 10,
    Suffix = "Studs/s",
    CurrentValue = 50,
@@ -56,8 +53,8 @@ BTab:CreateSlider({
 })
 
 -- 2. [토글] 근처 버튼 자동 터치
-CTab:CreateToggle({
-   Name = "메이플 시럽 자동 토클",
+Tab:CreateToggle({
+   Name = "Auto Touch Nearby Buttons",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoTouch = Value
@@ -80,8 +77,8 @@ CTab:CreateToggle({
 })
 
 -- 3. [토글] 나무 자동 파밍 (-5 스터드, 4스터드 거리)
-ATab:CreateToggle({
-   Name = "나무 오토팜(도끼 들으셈)",
+Tab:CreateToggle({
+   Name = "Auto Farm Tree (-5 Studs, 4S Dist)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoFarm = Value
@@ -110,7 +107,7 @@ ATab:CreateToggle({
                      local tool = char:FindFirstChildOfClass("Tool")
                      if tool then tool:Activate() end
                      ClickCenter()
-                     task.wait(1)
+                     task.wait(0.1)
                   end
                   hrp.Anchored = false
                end
@@ -122,8 +119,8 @@ ATab:CreateToggle({
 })
 
 -- 4. [토글] 돌 자동 파밍 (+2 스터드, 4스터드 거리)
-ATab:CreateToggle({
-   Name = "돌 오토팜(곡괭이 들으셈)",
+Tab:CreateToggle({
+   Name = "Auto Farm Rock (+2 Studs, 4S Dist)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoRockFarm = Value
@@ -158,12 +155,12 @@ ATab:CreateToggle({
                end
             end
          end
-         task.wait(1)
+         task.wait(0.1)
       end
    end
 })
 
-
+         
 function updateWalkSpeedF()
      function apply(char)
          hum = char:WaitForChild("Humanoid")
