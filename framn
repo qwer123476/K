@@ -6,10 +6,10 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local Camera = workspace.CurrentCamera
 
 local Window = Rayfield:CreateWindow({Name = "Farmstead Master Final", LoadingTitle = "System Online", LoadingSubtitle = "Automation Loaded"})
-local Tab = Window:CreateTab("오토팜류", nil)
-local 1Tab = Window:CreateTab("오토팜 속도", nil)
-local 2Tab = Window:CreateTab("메이플시럽", nil)
-local palyerTab = Window:CreateTab("플레이어", nil)
+local ATab = Window:CreateTab("오토팜류", nil)
+local BTab = Window:CreateTab("오토팜 속도", nil)
+local CTab = Window:CreateTab("메이플시럽", nil)
+local playerTab = Window:CreateTab("플레이어", nil)
 
 _G.FlySpeed = 50
 _G.NoClip = false
@@ -46,7 +46,7 @@ local function ClickCenter()
 end
 
 -- 1. [슬라이더] 비행 속도
-1Tab:CreateSlider({
+BTab:CreateSlider({
    Name = "비행속도",
    Range = {1, 100},
    Increment = 10,
@@ -56,7 +56,7 @@ end
 })
 
 -- 2. [토글] 근처 버튼 자동 터치
-2Tab:CreateToggle({
+CTab:CreateToggle({
    Name = "메이플 시럽 자동 토클",
    CurrentValue = false,
    Callback = function(Value)
@@ -78,9 +78,9 @@ end
       end
    end
 })
-print("나무 오토팜 로드완료")
+
 -- 3. [토글] 나무 자동 파밍 (-5 스터드, 4스터드 거리)
-Tab:CreateToggle({
+ATab:CreateToggle({
    Name = "나무 오토팜(도끼 들으셈)",
    CurrentValue = false,
    Callback = function(Value)
@@ -120,9 +120,9 @@ Tab:CreateToggle({
       end
    end
 })
-print("오토팜 돌 로드")
+
 -- 4. [토글] 돌 자동 파밍 (+2 스터드, 4스터드 거리)
-Tab:CreateToggle({
+ATab:CreateToggle({
    Name = "돌 오토팜(곡괭이 들으셈)",
    CurrentValue = false,
    Callback = function(Value)
@@ -313,7 +313,7 @@ local NoClipToggle = playerTab:CreateToggle({
     end
 })
 -- [외부 스크립트 로딩 버튼]
-Tab:CreateButton({
+playerTab:CreateButton({
    Name = "플라이",
    Callback = function()
       local success, result = pcall(function()
