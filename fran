@@ -1,0 +1,161 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local Camera = workspace.CurrentCamera
+
+local Window = Rayfield:CreateWindow({Name = "Farmstead Master Final", LoadingTitle = "System Online", LoadingSubtitle = "Automation Loaded"})
+local Tab = Window:CreateTab("Automation", nil)
+
+_G.FlySpeed = 50
+_G.NoClip = false
+_G.AutoFarm = false
+_G.AutoRockFarm = false
+_G.AutoTouch = false
+
+-- [카메라 완벽 고정]
+RunService.RenderStepped:Connect(function()
+    if (_G.AutoFarm or _G.AutoRockFarm) and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head") then
+        Camera.CameraType = Enum.CameraType.Scriptable
+        local head = LocalPlayer.Character.Head
+        Camera.CFrame = CFrame.new(head.Position, head.Position + head.CFrame.LookVector)
+    elseif Camera.CameraType == Enum.CameraType.Scriptable then
+        Camera.CameraType = Enum.CameraType.Custom
+    end
+end)
+
+-- [노클립 제어]
+RunService.Stepped:Connect(function()
+    if (_G.AutoFarm or _G.AutoRockFarm) and LocalPlayer.Character then
+        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
+            if v:IsA("BasePart") then v.CanCollide = false end
+        end
+    end
+end)
+
+local function ClickCenter()
+    local viewportSize = Camera.ViewportSize
+    local center = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
+    VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, true, game, 0)
+    task.wait(0.05)
+    VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, false, game, 0)
+end
+
+-- 1. [슬라이더] 비행 속도
+Tab:CreateSlider({
+   Name = "Fly Speed",
+   Range = {10, 200},
+   Increment = 10,
+   Suffix = "Studs/s",
+   CurrentValue = 50,
+   Callback = function(Value) _G.FlySpeed = Value end,
+})
+
+-- 2. [토글] 근처 버튼 자동 터치
+Tab:CreateToggle({
+   Name = "Auto Touch Nearby Buttons",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AutoTouch = Value
+      while _G.AutoTouch do
+         local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+         if hrp then
+            for _, obj in pairs(workspace:GetDescendants()) do
+               if obj:IsA("ProximityPrompt") then
+                  local p = obj.Parent
+                  local pos = (p:IsA("BasePart") and p.Position) or (p:IsA("Model") and p:GetPivot().Position)
+                  if pos and (hrp.Position - pos).Magnitude <= 20 then
+                     fireproximityprompt(obj)
+                  end
+               end
+            end
+         end
+         task.wait(0.5)
+      end
+   end
+})
+
+-- 3. [토글] 나무 자동 파밍 (-5 스터드, 4스터드 거리)
+Tab:CreateToggle({
+   Name = "Auto Farm Tree (-5 Studs, 4S Dist)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AutoFarm = Value
+      while _G.AutoFarm do
+         local char = LocalPlayer.Character
+         local hrp = char and char:FindFirstChild("HumanoidRootPart")
+         local folder = workspace:FindFirstChild("LoadedBlocks")
+         if hrp and folder then
+            local target = nil
+            for _, v in pairs(folder:GetChildren()) do
+               if v.Name == "Oak Tree" or v.Name == "Birch Tree" then target = v break end
+            end
+            if target then
+               local tPos = (target:IsA("Model") and target:GetPivot().Position or target.Position)
+               local dir = (hrp.Position - tPos).Unit
+               local offsetPos = tPos + (Vector3.new(dir.X, 0, dir.Z).Unit * 4) - Vector3.new(0, 5, 0)
+               
+               if (offsetPos - hrp.Position).Magnitude > 2 then
+                  hrp.Anchored = false
+                  hrp.AssemblyLinearVelocity = (offsetPos - hrp.Position).Unit * _G.FlySpeed
+               else
+                  hrp.AssemblyLinearVelocity = Vector3.new(0,0,0)
+                  hrp.Anchored = true
+                  while target and target.Parent and _G.AutoFarm do
+                     hrp.CFrame = CFrame.lookAt(hrp.Position, Vector3.new(tPos.X, tPos.Y, tPos.Z))
+                     local tool = char:FindFirstChildOfClass("Tool")
+                     if tool then tool:Activate() end
+                     ClickCenter()
+                     task.wait(1)
+                  end
+                  hrp.Anchored = false
+               end
+            end
+         end
+         task.wait(0.1)
+      end
+   end
+})
+
+-- 4. [토글] 돌 자동 파밍 (+2 스터드, 4스터드 거리)
+Tab:CreateToggle({
+   Name = "Auto Farm Rock (+2 Studs, 4S Dist)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AutoRockFarm = Value
+      while _G.AutoRockFarm do
+         local char = LocalPlayer.Character
+         local hrp = char and char:FindFirstChild("HumanoidRootPart")
+         local folder = workspace:FindFirstChild("LoadedBlocks")
+         if hrp and folder then
+            local target = nil
+            for _, v in pairs(folder:GetChildren()) do
+               if v.Name == "Small Boulder" or v.Name == "Small Rock" then target = v break end
+            end
+            if target then
+               local tPos = (target:IsA("Model") and target:GetPivot().Position or target.Position)
+               local dir = (hrp.Position - tPos).Unit
+               local offsetPos = tPos + (Vector3.new(dir.X, 0, dir.Z).Unit * 4) + Vector3.new(0, 2, 0)
+               
+               if (offsetPos - hrp.Position).Magnitude > 2 then
+                  hrp.Anchored = false
+                  hrp.AssemblyLinearVelocity = (offsetPos - hrp.Position).Unit * _G.FlySpeed
+               else
+                  hrp.AssemblyLinearVelocity = Vector3.new(0,0,0)
+                  hrp.Anchored = true
+                  while target and target.Parent and _G.AutoRockFarm do
+                     hrp.CFrame = CFrame.lookAt(hrp.Position, Vector3.new(tPos.X, tPos.Y, tPos.Z))
+                     local tool = char:FindFirstChildOfClass("Tool")
+                     if tool then tool:Activate() end
+                     ClickCenter()
+                     task.wait(0.1)
+                  end
+                  hrp.Anchored = false
+               end
+            end
+         end
+         task.wait(1)
+      end
+   end
+})
