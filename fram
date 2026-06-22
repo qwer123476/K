@@ -5,8 +5,9 @@ local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local Camera = workspace.CurrentCamera
 
-local Window = Rayfield:CreateWindow({Name = "Farmstead Master Final", LoadingTitle = "System Online", LoadingSubtitle = "Automation Loaded"})
-local Tab = Window:CreateTab("Automation", nil)
+local Window = Rayfield:CreateWindow({Name = "오토팜 팜스테드", LoadingTitle = "파카", LoadingSubtitle = "로드중"})
+local Tab = Window:CreateTab("오토팜", nil)
+local playerTab = Window:CreateTab("플레이어", nil)
 
 _G.FlySpeed = 50
 _G.NoClip = false
@@ -44,7 +45,7 @@ end
 
 -- 1. [슬라이더] 비행 속도
 Tab:CreateSlider({
-   Name = "Fly Speed",
+   Name = "플라이스피드(넘빠르면 미작동)",
    Range = {10, 200},
    Increment = 10,
    Suffix = "Studs/s",
@@ -54,7 +55,7 @@ Tab:CreateSlider({
 
 -- 2. [토글] 근처 버튼 자동 터치
 Tab:CreateToggle({
-   Name = "Auto Touch Nearby Buttons",
+   Name = "메이플시럽 자동토클",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoTouch = Value
@@ -78,7 +79,7 @@ Tab:CreateToggle({
 
 -- 3. [토글] 나무 자동 파밍 (-5 스터드, 4스터드 거리)
 Tab:CreateToggle({
-   Name = "Auto Farm Tree (-5 Studs, 4S Dist)",
+   Name = "오토팜 나무 (도끼 드셈)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoFarm = Value
@@ -94,7 +95,7 @@ Tab:CreateToggle({
             if target then
                local tPos = (target:IsA("Model") and target:GetPivot().Position or target.Position)
                local dir = (hrp.Position - tPos).Unit
-               local offsetPos = tPos + (Vector3.new(dir.X, 0, dir.Z).Unit * 4) - Vector3.new(0, 5, 0)
+               local offsetPos = tPos + (Vector3.new(dir.X, 0, dir.Z).Unit * 3.5) - Vector3.new(0, 5, 0)
                
                if (offsetPos - hrp.Position).Magnitude > 2 then
                   hrp.Anchored = false
@@ -107,7 +108,7 @@ Tab:CreateToggle({
                      local tool = char:FindFirstChildOfClass("Tool")
                      if tool then tool:Activate() end
                      ClickCenter()
-                     task.wait(0.1)
+                     task.wait(1)
                   end
                   hrp.Anchored = false
                end
@@ -120,7 +121,7 @@ Tab:CreateToggle({
 
 -- 4. [토글] 돌 자동 파밍 (+2 스터드, 4스터드 거리)
 Tab:CreateToggle({
-   Name = "Auto Farm Rock (+2 Studs, 4S Dist)",
+   Name = "오토팜 돌(곡괭이 드셈)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoRockFarm = Value
@@ -149,7 +150,7 @@ Tab:CreateToggle({
                      local tool = char:FindFirstChildOfClass("Tool")
                      if tool then tool:Activate() end
                      ClickCenter()
-                     task.wait(0.1)
+                     task.wait(1)
                   end
                   hrp.Anchored = false
                end
