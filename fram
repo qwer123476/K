@@ -48,7 +48,7 @@ end
 -- 1. [슬라이더] 비행 속도
 1Tab:CreateSlider({
    Name = "비행속도",
-   Range = {10, 200},
+   Range = {1, 100},
    Increment = 10,
    Suffix = "Studs/s",
    CurrentValue = 50,
