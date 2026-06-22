@@ -312,6 +312,32 @@ local NoClipToggle = playerTab:CreateToggle({
         updateNoClipF()
     end
 })
+-- [외부 스크립트 로딩 버튼]
+Tab:CreateButton({
+   Name = "플라이",
+   Callback = function()
+      local success, result = pcall(function()
+         loadstring(game:HttpGet("https://raw.githubusercontent.com/qwer123476/K/main/fly.txt"))()
+      end)
+      
+      if success then
+         Rayfield:Notify({
+            Title = "로딩완료✅️",
+            Content = "Fly Script Loaded Successfully!",
+            Duration = 5,
+            Image = nil,
+         })
+      else
+         Rayfield:Notify({
+            Title = "에러🤔",
+            Content = "Failed to load script: " .. tostring(result),
+            Duration = 5,
+            Image = nil,
+         })
+      end
+   end,
+})
+
 -- [안티치트 패시브 바이패스 - 상단에 배치]
 task.spawn(function()
     local mt = getrawmetatable(game)
