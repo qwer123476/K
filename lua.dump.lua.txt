@@ -1,0 +1,1173 @@
+local Rayfield, PrimaryPart, RayfieldField, Window, Tab, r301, FindFirstChild, Array, CharacterAdded, Humanoid, Character_2, CreatureBlobman, LeftDetector, RightDetector, BlobmanSeatAndOwnerScript, HumanoidRootPart, Character_3, CreatureBlobman_2, LeftDetector_2, RightDetector_2, BlobmanSeatAndOwnerScript_2, HumanoidRootPart_2, HumanoidRootPart_3, HumanoidRootPart_4, Array_2, r465, Array_3, Array_4, r473, Regex, FindFirstChild_2, HumanoidRootPart_5, Character_4, CreatureBlobman_3, HumanoidRootPart_6, BlobmanSeatAndOwnerScript_3, LeftDetector_3, RightDetector_3, HumanoidRootPart_7, Array_5, r505, Array_6, Array_7, r513, Regex_2, FindFirstChild_3, Character_5, CreatureBlobman_4, HumanoidRootPart_8, HumanoidRootPart_9, BlobmanSeatAndOwnerScript_4, LeftDetector_4, RightDetector_4, HumanoidRootPart_10, Array_8, r594, Array_9, Array_10, HumanoidRootPart_11, CreatureBlobman_5, HumanoidRootPart_12, BlobmanSeatAndOwnerScript_5, LeftDetector_5, RightDetector_5, For_Val_14_Character, HumanoidRootPart_13, Heartbeat, IsHeld, CharacterAdded_2, Character_6, Character_7, Character_8, Character_9, Character_10, Character_11, For_Val_11_Character, For_Val_11_Character_2, For_Val_11_Character_3, For_Val_11_Character_4, For_Val_11_Character_5, For_Val_11_Character_6, For_Val_12_Character, Head, Left_Arm, Left_Leg, Right_Arm, Right_Leg, Torso, Humanoid_2, Head_2, Torso_2, UpperTorso, LowerTorso, HumanoidRootPart_14, Stepped, DescendantAdded_2, Humanoid_3;
+local fenv = getfenv();
+if pcall(function(p1, p2, p3, p4, a, b, c)
+
+end) then 
+
+end;
+local Players = game.Players;
+local LocalPlayer = Players.LocalPlayer;
+LocalPlayer:GetMouse();
+local RunService = game:GetService("RunService");
+local Character = LocalPlayer.Character;
+if not Character then
+else 
+    PrimaryPart = Character.PrimaryPart;
+    if PrimaryPart then 
+        if not PrimaryPart.Position then
+        else 
+            Window = loadstring(
+                game:HttpGet("https://sirius.menu/rayfield")
+            )():CreateWindow({
+                ["LoadingTitle"] = "반물사",
+                ["KeySettings"] = {
+                    ["Actions"] = {
+                        {
+                            ["OnPress"] = function(p1_5, p2_5, p3_5, p4_5, p5_5, a_5, b_5, c_5)
+                                setclipboard"https://(discord invite)";
+                                fenv.rayfieldField:Notify("링크가 복사되었습니다!", 3);
+                            end,
+                            ["Text"] = "디스코드 링크"
+                        }
+                    },
+                    ["Subtitle"] = "허용된 키를 입력하세요",
+                    ["Title"] = "키 시스템",
+                    ["Key"] = {
+                        "you out",
+                        "muyoping3",
+                        "muyo12"
+                    },
+                    ["GrabKeyFromSite"] = false,
+                    ["SaveKey"] = false,
+                    ["FileName"] = "KeyrayFile",
+                    ["Note"] = "디스코드 링크 https://(discord invite)"
+                },
+                ["Name"] = "반물사 스크립트",
+                ["KeySystem"] = true,
+                ["LoadingSubtitle"] = "by 무요핑",
+                ["ConfigurationSaving"] = {
+                    ["Enabled"] = true,
+                    ["FileName"] = "MyHubConfig"
+                }
+            });
+        end;
+    end;
+end;
+Window:CreateTab("메인", 4483362458):CreateLabel("현재 모드: 원형 회전");
+local Tab_2 = Window:CreateTab("블룹", 4483362458);
+game:GetService("Players");
+game:GetService("Workspace");
+game:GetService("RunService");
+local Dropdown = Tab_2:CreateDropdown({
+    ["Name"] = "킥 플레이어 정하기",
+    ["CurrentOption"] = "",
+    ["Callback"] = function(p1_6, p2_6, a_6, b_6, c_6)
+        if type(p1_6) ~= "table" then
+        else 
+            FindFirstChild = Players:FindFirstChild(
+                p1_6[1]:match("%((.-)%)")
+            );
+        end;
+    end,
+    ["MultiSelection"] = false,
+    ["Options"] = {}
+});
+if not workspace:FindFirstChild("PCLDVisuals") then
+else 
+
+end;
+for for_key_0, for_val_0 in pairs(workspace:GetDescendants()) do
+    if not for_key_0 then
+    else 
+
+    end;
+    if for_val_0:IsA("BasePart") then 
+
+    end;
+    if (for_val_0.Name == "PlayerCharacterLocationDetector") then
+    else 
+    end;
+end;
+workspace.DescendantAdded:Connect(function(descendant, p2_7, p3_7, a_7, b_7, c_7)
+    if descendant:IsA("BasePart") then 
+
+    end;
+    if descendant.Name ~= "PlayerCharacterLocationDetector" then 
+
+    end;
+end);
+workspace.DescendantRemoving:Connect(function(descendant_1, p2_8, p3_8, p4_8, p5_8, p6_8, a_8, b_8, c_8)
+    Array = {};
+    if Array[descendant_1] then 
+    end;
+end);
+RunService.RenderStepped:Connect(function(deltaTime, p2_9, p3_9, p4_9, p5_9, p6_9, a_9, b_9, c_9)
+
+end);
+Tab_2:CreateToggle({
+    ["CurrentValue"] = false,
+    ["Name"] = "PCLD 보기",
+    ["Callback"] = function(p1_10, a_10, b_10, c_10)
+
+    end
+});
+local WaitForChild = workspace:WaitForChild(
+    LocalPlayer.Name .. "SpawnedInToys"
+);
+local MenuToys = game:GetService("ReplicatedStorage").MenuToys;
+MenuToys:WaitForChild("SpawnToyRemoteFunction");
+local CFrame_New = CFrame.new;
+CFrame_New(0, 100, 0);
+if not Character then
+else 
+    Character:FindFirstChildOfClass("Humanoid");
+    LocalPlayer.CharacterAdded:Connect(function(character, p2_11, p3_11, p4_11, a_11, b_11, c_11)
+        Humanoid = character:WaitForChild("Humanoid");
+    end);
+end;
+Tab_2:CreateToggle({
+    ["CurrentValue"] = false,
+    ["Name"] = "블룹 탑승",
+    ["Callback"] = function(p1_12, a_12, b_12, c_12)
+        if p1_12 then 
+            task.spawn(function()
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                if p1_12 then 
+                    if Humanoid.SeatPart then 
+                        task.wait(0.5);
+                    end;
+                end;
+                task.wait(0.5);
+                local _ = p1_12;
+            end);
+        end;
+    end
+});
+Tab_2:CreateButton({
+    ["Name"] = "킥 플레이어",
+    ["Callback"] = function(p1_13, p2_13, p3_13, a_13, b_13, c_13)
+        if FindFirstChild then 
+            Character_2 = FindFirstChild.Character;
+        end;
+        if not Character_2 then
+        else 
+            CreatureBlobman = WaitForChild:FindFirstChild("CreatureBlobman");
+        end;
+        if not CreatureBlobman then
+        else 
+            LeftDetector = CreatureBlobman:FindFirstChild("LeftDetector");
+        end;
+        if LeftDetector then 
+            LeftDetector:FindFirstChild("LeftWeld");
+        end;
+        RightDetector = CreatureBlobman:FindFirstChild("RightDetector");
+        if RightDetector then 
+            RightDetector:FindFirstChild("RightWeld");
+        end;
+        if not CreatureBlobman:FindFirstChild("BlobmanSeatAndOwnerScript") then
+        else 
+            BlobmanSeatAndOwnerScript = CreatureBlobman.BlobmanSeatAndOwnerScript;
+        end;
+        if not CreatureBlobman:FindFirstChild("BlobmanSeatAndOwnerScript") then
+        else 
+
+        end;
+        if not LeftDetector then
+        else 
+            if RightDetector then 
+                if BlobmanSeatAndOwnerScript:FindFirstChild("CreatureGrab") then 
+
+                end;
+            end;
+        end;
+        if not BlobmanSeatAndOwnerScript:FindFirstChild("CreatureDrop") then
+        else 
+
+        end;
+        if not Character_2:FindFirstChild("HumanoidRootPart") then
+        else 
+
+        end;
+        if CreatureBlobman:FindFirstChild("HumanoidRootPart") then 
+            if not Character then
+            else 
+                HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart");
+            end;
+        end;
+        if not HumanoidRootPart then
+        else 
+            if HumanoidRootPart.CFrame then 
+                task.spawn(function()
+
+                end);
+            end;
+        end;
+    end
+});
+Tab_2:CreateButton({
+    ["Name"] = "올킥",
+    ["Callback"] = function(p1_14, p2_14, a_14, b_14, c_14)
+        for for_key_7, for_val_7 in ipairs(Players:GetPlayers()) do
+            if for_key_7 then 
+
+            end;
+            if for_val_7 == LocalPlayer then
+            else 
+                Character_3 = for_val_7.Character;
+            end;
+            if not Character_3 then
+            else 
+                CreatureBlobman_2 = WaitForChild:FindFirstChild("CreatureBlobman");
+            end;
+            if not CreatureBlobman_2 then
+            else 
+                LeftDetector_2 = CreatureBlobman_2:FindFirstChild("LeftDetector");
+            end;
+            if LeftDetector_2 then 
+                LeftDetector_2:FindFirstChild("LeftWeld");
+            end;
+            RightDetector_2 = CreatureBlobman_2:FindFirstChild("RightDetector");
+            if RightDetector_2 then 
+                RightDetector_2:FindFirstChild("RightWeld");
+            end;
+            if not CreatureBlobman_2:FindFirstChild("BlobmanSeatAndOwnerScript") then
+            else 
+                BlobmanSeatAndOwnerScript_2 = CreatureBlobman_2.BlobmanSeatAndOwnerScript;
+            end;
+            if not CreatureBlobman_2:FindFirstChild("BlobmanSeatAndOwnerScript") then
+            else 
+
+            end;
+            if not LeftDetector_2 then
+            else 
+                if RightDetector_2 then 
+                    if BlobmanSeatAndOwnerScript_2:FindFirstChild("CreatureGrab") then 
+
+                    end;
+                end;
+            end;
+            if not BlobmanSeatAndOwnerScript_2:FindFirstChild("CreatureDrop") then
+            else 
+                HumanoidRootPart_2 = Character_3:FindFirstChild("HumanoidRootPart");
+            end;
+            if not HumanoidRootPart_2 then
+            else 
+                HumanoidRootPart_3 = CreatureBlobman_2:FindFirstChild("HumanoidRootPart");
+            end;
+            if HumanoidRootPart_3 then 
+                if not Character then
+                else 
+                    HumanoidRootPart_4 = Character:FindFirstChild("HumanoidRootPart");
+                end;
+            end;
+            if not HumanoidRootPart_4 then
+            else 
+                if HumanoidRootPart_4.CFrame then 
+                    task.spawn(function()
+                        HumanoidRootPart_3.CFrame = HumanoidRootPart_2.CFrame * CFrame_New(-5, 0, 0);
+                    end);
+                end;
+            end;
+            task.wait(1);
+        end;
+    end
+});
+local PlayerAdded = Players.PlayerAdded;
+PlayerAdded:Connect(function(a_2, b_2, c_2)
+    for for_key_8, for_val_8 in ipairs(Players:GetPlayers()) do
+        if not for_key_8 then
+        else 
+
+        end;
+        if (for_val_8 ~= LocalPlayer) then 
+            Array_2 = {};
+            table.insert(
+                Array_2,
+                for_val_8.DisplayName .. (
+                    " (" .. (
+                        for_val_8.Name .. ")"
+                    )
+                )
+            );
+        end;
+    end;
+    Dropdown:Refresh(Array_2, true);
+    if FindFirstChild then 
+        r465 = FindFirstChild.DisplayName .. (
+            " (" .. (
+                FindFirstChild.Name .. ")"
+            )
+        );
+    end;
+    if table.find(Array_2, r465) then 
+        Dropdown:SetOption(r465);
+    end;
+end);
+local PlayerRemoving = Players.PlayerRemoving;
+PlayerRemoving:Connect(do
+    for for_key_1, for_val_1 in ipairs(Players:GetPlayers()) do
+        if not for_key_1 then
+        else 
+
+        end;
+        if (for_val_1 ~= LocalPlayer) then 
+            Array_3 = {};
+            table.insert(
+                Array_3,
+                for_val_1.DisplayName .. (
+                    " (" .. (
+                        for_val_1.Name .. ")"
+                    )
+                )
+            );
+        end;
+    end;
+    Dropdown:Refresh(Array_3, true);
+end);
+for for_key_2, for_val_2 in ipairs(Players:GetPlayers()) do
+    if not for_key_2 then
+    else 
+
+    end;
+    if (for_val_2 ~= LocalPlayer) then 
+        Array_4 = {};
+        table.insert(
+            Array_4,
+            for_val_2.DisplayName .. (
+                " (" .. (
+                    for_val_2.Name .. ")"
+                )
+            )
+        );
+    end;
+end;
+Dropdown:Refresh(Array_4, true);
+local Dropdown_2 = Tab_2:CreateDropdown({
+    ["Name"] = "루프 그렙 플레이어 정하기",
+    ["CurrentOption"] = "",
+    ["Callback"] = function(p1_16, p2_16, a_16, b_16, c_16)
+        if type(p1_16) ~= "table" then
+        else 
+            r473 = p1_16[1];
+            if r473 then 
+                Regex = r473:match("%((.-)%)");
+            end;
+        end;
+        if not Regex then
+        else 
+            if Regex then 
+                FindFirstChild_2 = Players:FindFirstChild(Regex);
+            end;
+        end;
+    end,
+    ["MultiSelection"] = false,
+    ["Options"] = {}
+});
+Tab_2:CreateToggle({
+    ["CurrentValue"] = false,
+    ["Name"] = "루프 그렙",
+    ["Callback"] = function(p1_17, p2_17, p3_17, p4_17, p5_17, a_17, b_17, c_17)
+        if not p1_17 then
+        else 
+            task.spawn(function()
+                if not Character then
+                else 
+                    HumanoidRootPart_5 = Character:FindFirstChild("HumanoidRootPart");
+                end;
+                if not HumanoidRootPart_5 then
+                else 
+                    if p1_17 then 
+                        if FindFirstChild_2 then 
+                            Character_4 = FindFirstChild_2.Character;
+                            CreatureBlobman_3 = WaitForChild:FindFirstChild("CreatureBlobman");
+                        end;
+                    end;
+                end;
+                if not Character_4 then
+                else 
+                    if CreatureBlobman_3 then 
+                        HumanoidRootPart_6 = Character_4:FindFirstChild("HumanoidRootPart");
+                    end;
+                end;
+                BlobmanSeatAndOwnerScript_3 = CreatureBlobman_3:FindFirstChild("BlobmanSeatAndOwnerScript");
+                LeftDetector_3 = CreatureBlobman_3:FindFirstChild("LeftDetector");
+                RightDetector_3 = CreatureBlobman_3:FindFirstChild("RightDetector");
+                if not LeftDetector_3 then
+                else 
+                    LeftDetector_3:FindFirstChild("LeftWeld");
+                end;
+                if not RightDetector_3 then
+                else 
+                    RightDetector_3:FindFirstChild("RightWeld");
+                end;
+                if BlobmanSeatAndOwnerScript_3 then 
+
+                end;
+                if BlobmanSeatAndOwnerScript_3 then 
+
+                end;
+                HumanoidRootPart_7 = CreatureBlobman_3:FindFirstChild("HumanoidRootPart");
+                local _ = not HumanoidRootPart_6;
+                local _ = HumanoidRootPart_7;
+                BlobmanSeatAndOwnerScript_3:FindFirstChild("CreatureGrab");
+                BlobmanSeatAndOwnerScript_3:FindFirstChild("CreatureDrop");
+                local _ = not LeftDetector_3;
+                if not RightDetector_3 then
+                else 
+                    HumanoidRootPart_7.CFrame = HumanoidRootPart_6.CFrame * CFrame_New(-5, 0, 0);
+                end;
+            end);
+        end;
+    end
+});
+PlayerAdded:Connect(function(a_3, b_3, c_3)
+    for for_key_9, for_val_9 in ipairs(Players:GetPlayers()) do
+        if for_key_9 then 
+
+        end;
+        if (for_val_9 ~= LocalPlayer) then 
+            Array_5 = {};
+            table.insert(
+                Array_5,
+                for_val_9.DisplayName .. (
+                    " (" .. (
+                        for_val_9.Name .. ")"
+                    )
+                )
+            );
+        end;
+    end;
+    Dropdown_2:Refresh(Array_5, true);
+    if FindFirstChild_2 then 
+        r505 = FindFirstChild_2.DisplayName .. (
+            " (" .. (
+                FindFirstChild_2.Name .. ")"
+            )
+        );
+    end;
+    if table.find(Array_5, r505) then 
+        Dropdown_2:SetOption(r505);
+    end;
+end);
+PlayerRemoving:Connect(do
+    for for_key_3, for_val_3 in ipairs(Players:GetPlayers()) do
+        if for_key_3 then 
+
+        end;
+        if (for_val_3 ~= LocalPlayer) then 
+            Array_6 = {};
+            table.insert(
+                Array_6,
+                for_val_3.DisplayName .. (
+                    " (" .. (
+                        for_val_3.Name .. ")"
+                    )
+                )
+            );
+        end;
+    end;
+    Dropdown_2:Refresh(Array_6, true);
+end);
+for for_key_4, for_val_4 in ipairs(Players:GetPlayers()) do
+    if for_key_4 then 
+
+    end;
+    if (for_val_4 ~= LocalPlayer) then 
+        Array_7 = {};
+        table.insert(
+            Array_7,
+            for_val_4.DisplayName .. (
+                " (" .. (
+                    for_val_4.Name .. ")"
+                )
+            )
+        );
+    end;
+end;
+Dropdown_2:Refresh(Array_7, true);
+local Dropdown_3 = Tab_2:CreateDropdown({
+    ["Name"] = "브링 플레이어 정하기",
+    ["CurrentOption"] = "",
+    ["Callback"] = function(p1_19, p2_19, p3_19, p4_19, p5_19, p6_19, a_19, b_19, c_19)
+        if (type(p1_19) == "table") then 
+            r513 = p1_19[1];
+            if r513 then 
+                Regex_2 = r513:match("%((.-)%)");
+            end;
+        end;
+        if Regex_2 then 
+            if Regex_2 then 
+                FindFirstChild_3 = Players:FindFirstChild(Regex_2);
+            end;
+        end;
+    end,
+    ["MultiSelection"] = false,
+    ["Options"] = {}
+});
+Tab_2:CreateButton({
+    ["Name"] = "브링 플레이어",
+    ["Callback"] = function(p1_20, a_20, b_20, c_20)
+        if not FindFirstChild_3 then
+        else 
+            Character_5 = FindFirstChild_3.Character;
+        end;
+        if Character_5 then 
+            CreatureBlobman_4 = WaitForChild:FindFirstChild("CreatureBlobman");
+        end;
+        if CreatureBlobman_4 then 
+            HumanoidRootPart_8 = Character_5:FindFirstChild("HumanoidRootPart");
+            HumanoidRootPart_9 = CreatureBlobman_4:FindFirstChild("HumanoidRootPart");
+            BlobmanSeatAndOwnerScript_4 = CreatureBlobman_4:FindFirstChild("BlobmanSeatAndOwnerScript");
+        end;
+        LeftDetector_4 = CreatureBlobman_4:FindFirstChild("LeftDetector");
+        RightDetector_4 = CreatureBlobman_4:FindFirstChild("RightDetector");
+        if LeftDetector_4 then 
+            LeftDetector_4:FindFirstChild("LeftWeld");
+        end;
+        if not RightDetector_4 then
+        else 
+            RightDetector_4:FindFirstChild("RightWeld");
+        end;
+        if BlobmanSeatAndOwnerScript_4 then 
+
+        end;
+        if BlobmanSeatAndOwnerScript_4 then 
+
+        end;
+        if not HumanoidRootPart_8 then
+        else 
+            if HumanoidRootPart_9 then 
+                if not BlobmanSeatAndOwnerScript_4:FindFirstChild("CreatureGrab") then
+                else 
+                    if not BlobmanSeatAndOwnerScript_4:FindFirstChild("CreatureDrop") then
+                    else 
+                        if not LeftDetector_4 then
+                        else 
+
+                        end;
+                    end;
+                end;
+            end;
+        end;
+        if not RightDetector_4 then
+        else 
+            if not Character then
+            else 
+                HumanoidRootPart_10 = Character:FindFirstChild("HumanoidRootPart");
+            end;
+        end;
+        if not HumanoidRootPart_10 then
+        else 
+            task.spawn(function()
+                HumanoidRootPart_9.CFrame = HumanoidRootPart_8.CFrame * CFrame_New(-5, 0, 0);
+            end);
+        end;
+    end
+});
+PlayerAdded:Connect(function(player, reason, p3_4, p4_4, a_4, b_4, c_4)
+    for for_key_10, for_val_10 in ipairs(Players:GetPlayers()) do
+        if not for_key_10 then
+        else 
+
+        end;
+        if (for_val_10 ~= LocalPlayer) then 
+            Array_8 = {};
+            table.insert(
+                Array_8,
+                for_val_10.DisplayName .. (
+                    " (" .. (
+                        for_val_10.Name .. ")"
+                    )
+                )
+            );
+        end;
+    end;
+    Dropdown_3:Refresh(Array_8, true);
+    if not FindFirstChild_3 then
+    else 
+        r594 = FindFirstChild_3.DisplayName .. (
+            " (" .. (
+                FindFirstChild_3.Name .. ")"
+            )
+        );
+    end;
+    if table.find(Array_8, r594) then 
+        Dropdown_3:SetOption(r594);
+    end;
+end);
+PlayerRemoving:Connect(do
+    for for_key_5, for_val_5 in ipairs(Players:GetPlayers()) do
+        if not for_key_5 then
+        else 
+
+        end;
+        if (for_val_5 ~= LocalPlayer) then 
+            Array_9 = {};
+            table.insert(
+                Array_9,
+                for_val_5.DisplayName .. (
+                    " (" .. (
+                        for_val_5.Name .. ")"
+                    )
+                )
+            );
+        end;
+    end;
+    Dropdown_3:Refresh(Array_9, true);
+end);
+for for_key_6, for_val_6 in ipairs(Players:GetPlayers()) do
+    if not for_key_6 then
+    else 
+
+    end;
+    if (for_val_6 ~= LocalPlayer) then 
+        Array_10 = {};
+        table.insert(
+            Array_10,
+            for_val_6.DisplayName .. (
+                " (" .. (
+                    for_val_6.Name .. ")"
+                )
+            )
+        );
+    end;
+end;
+Dropdown_3:Refresh(Array_10, true);
+Tab_2:CreateButton({
+    ["Name"] = "올 브링",
+    ["Callback"] = function(p1_22, p2_22, p3_22, p4_22, p5_22, a_22, b_22, c_22)
+        if not Character then
+        else 
+            HumanoidRootPart_11 = Character:FindFirstChild("HumanoidRootPart");
+        end;
+        if not HumanoidRootPart_11 then
+        else 
+            CreatureBlobman_5 = WaitForChild:FindFirstChild("CreatureBlobman");
+        end;
+        if not CreatureBlobman_5 then
+        else 
+            HumanoidRootPart_12 = CreatureBlobman_5:FindFirstChild("HumanoidRootPart");
+        end;
+        BlobmanSeatAndOwnerScript_5 = CreatureBlobman_5:FindFirstChild("BlobmanSeatAndOwnerScript");
+        LeftDetector_5 = CreatureBlobman_5:FindFirstChild("LeftDetector");
+        RightDetector_5 = CreatureBlobman_5:FindFirstChild("RightDetector");
+        if LeftDetector_5 then 
+            LeftDetector_5:FindFirstChild("LeftWeld");
+        end;
+        if RightDetector_5 then 
+            RightDetector_5:FindFirstChild("RightWeld");
+        end;
+        if not BlobmanSeatAndOwnerScript_5 then
+        else 
+
+        end;
+        if not BlobmanSeatAndOwnerScript_5 then
+        else 
+
+        end;
+        if not HumanoidRootPart_12 then
+        else 
+            if BlobmanSeatAndOwnerScript_5:FindFirstChild("CreatureGrab") then 
+                if BlobmanSeatAndOwnerScript_5:FindFirstChild("CreatureDrop") then 
+                    if LeftDetector_5 then 
+
+                    end;
+                end;
+            end;
+        end;
+        if RightDetector_5 then 
+            task.spawn(function()
+                for for_key_14, for_val_14 in ipairs(Players:GetPlayers()) do
+                    if not for_key_14 then
+                    else 
+
+                    end;
+                    if (for_val_14 ~= LocalPlayer) then 
+                        For_Val_14_Character = for_val_14.Character;
+                        if not For_Val_14_Character then
+                        else 
+                            HumanoidRootPart_13 = For_Val_14_Character:FindFirstChild("HumanoidRootPart");
+                        end;
+                    end;
+                    if HumanoidRootPart_13 then 
+                        HumanoidRootPart_12.CFrame = HumanoidRootPart_13.CFrame * CFrame_New(-5, 0, 0);
+                    end;
+                end;
+            end);
+        end;
+    end
+});
+local Tab_3 = Window:CreateTab("보호", 4483362458);
+Tab_3:CreateToggle({
+    ["CurrentValue"] = false,
+    ["Name"] = "안티 그렙",
+    ["Callback"] = function(p1_23, p2_23, p3_23, a_23, b_23, c_23)
+        if p1_23 then 
+            game:GetService("ReplicatedStorage");
+        end;
+        game:GetService("RunService");
+        r254:Connect(function(deltaTime_2, p2_40, a_40, b_40, c_40)
+            IsHeld = LocalPlayer:FindFirstChild("IsHeld");
+            if IsHeld then 
+
+            end;
+            if (IsHeld.Value) then
+            else 
+
+            end;
+        end);
+    end
+});
+Tab_3:CreateToggle({
+    ["CurrentValue"] = false,
+    ["Name"] = "안티 독",
+    ["Callback"] = function(p1_24, p2_24, a_24, b_24, c_24)
+        if not Character then
+        else 
+
+        end;
+        if not p1_24 then
+        else 
+            Character:WaitForChild("HumanoidRootPart").CanTouch = false;
+        end;
+    end
+});
+local Tab_4 = Window:CreateTab("그렙", 4483362458);
+game:GetService("Players");
+game:GetService("RunService");
+PlayerAdded:Connect(function(player_1, p2_25, p3_25, p4_25, p5_25, p6_25, a_25, b_25, c_25)
+    player_1.CharacterAdded:Connect(function(p1_41, p2_41, p3_41, p4_41, p5_41, a_41, b_41, c_41)
+        if not p1_27 then
+        else 
+
+        end;
+        if player_1 ~= LocalPlayer then 
+
+        end;
+        if not player_1.Character then
+        else 
+
+        end;
+        if player_1.Character:FindFirstChild("Left Arm") then 
+
+        end;
+        if player_1.Character:FindFirstChild("Right Arm") then 
+
+        end;
+        if player_1.Character:FindFirstChild("Left Leg") then 
+
+        end;
+        if player_1.Character:FindFirstChild("Right Leg") then 
+
+        end;
+        if player_1.Character:FindFirstChild("Torso") then 
+
+        end;
+        if player_1.Character:FindFirstChild("Head") then 
+
+        end;
+    end);
+end);
+r254 = RunService.Heartbeat;
+r254:Connect(function(deltaTime_1, p2_26, p3_26, p4_26, p5_26, a_26, b_26, c_26)
+
+end);
+Tab_4:CreateToggle({
+    ["CurrentValue"] = false,
+    ["Name"] = "노클립 그렙",
+    ["Callback"] = function(p1_27, p2_27, p3_27, p4_27, a_27, b_27, c_27)
+        if p1_27 then 
+
+        end;
+        for for_key_11, for_val_11 in ipairs(Players:GetPlayers()) do
+            if for_key_11 then 
+
+            end;
+            if for_val_11 ~= LocalPlayer then 
+
+            end;
+            if not for_val_11.Character then
+            else 
+
+            end;
+            if for_val_11.Character:FindFirstChild("Left Arm") then 
+
+            end;
+            if for_val_11.Character:FindFirstChild("Right Arm") then 
+
+            end;
+            if for_val_11.Character:FindFirstChild("Left Leg") then 
+
+            end;
+            if for_val_11.Character:FindFirstChild("Right Leg") then 
+
+            end;
+            if for_val_11.Character:FindFirstChild("Torso") then 
+
+            end;
+            if for_val_11.Character:FindFirstChild("Head") then 
+
+            end;
+        end;
+    end
+});
+Tab_4:CreateButton({
+    ["Name"] = "팔다리 없애기",
+    ["Callback"] = function(p1_28, p2_28, p3_28, p4_28, a_28, b_28, c_28)
+        for for_key_12, for_val_12 in ipairs(Players:GetPlayers()) do
+            if for_key_12 then 
+                For_Val_12_Character = for_val_12.Character;
+                if For_Val_12_Character then 
+
+                end;
+            end;
+            if For_Val_12_Character:FindFirstChild("Head") then 
+
+            end;
+            if not For_Val_12_Character.Head:FindFirstChild("PartOwner") then
+            else 
+                if not For_Val_12_Character then
+                else 
+
+                end;
+            end;
+            if not For_Val_12_Character then
+            else 
+                Left_Arm = For_Val_12_Character:FindFirstChild("Left Arm");
+            end;
+            if Left_Arm then 
+
+            end;
+            if not Left_Arm:IsA("BasePart") then
+            else 
+                Left_Arm.CFrame = CFrame_New(0, -99999, 0);
+            end;
+            Left_Leg = For_Val_12_Character:FindFirstChild("Left Leg");
+            if Left_Leg then 
+
+            end;
+            if not Left_Leg:IsA("BasePart") then
+            else 
+                Left_Leg.CFrame = CFrame_New(0, -99999, 0);
+            end;
+            Right_Arm = For_Val_12_Character:FindFirstChild("Right Arm");
+            if Right_Arm then 
+
+            end;
+            if not Right_Arm:IsA("BasePart") then
+            else 
+                Right_Arm.CFrame = CFrame_New(0, -99999, 0);
+            end;
+            Right_Leg = For_Val_12_Character:FindFirstChild("Right Leg");
+            if Right_Leg then 
+
+            end;
+            if not Right_Leg:IsA("BasePart") then
+            else 
+                Right_Leg.CFrame = CFrame_New(0, -99999, 0);
+            end;
+            task.wait(0.3);
+            Torso = For_Val_12_Character:FindFirstChild("Torso");
+            if not Torso then
+            else 
+
+            end;
+            if Torso:IsA("BasePart") then 
+                Torso.CFrame = CFrame_New(0, -99999, 0);
+            end;
+        end;
+    end
+});
+local Tab_5 = Window:CreateTab("플레이어", 4483362458);
+game:GetService("RunService");
+Tab_5:CreateSlider({
+    ["Name"] = "걷기 속도",
+    ["CurrentValue"] = 16,
+    ["Increment"] = 1,
+    ["Range"] = {
+        16,
+        500
+    },
+    ["Callback"] = function(p1_29, p2_29, p3_29, p4_29, p5_29, a_29, b_29, c_29)
+        if not Character then
+        else 
+            Humanoid_2 = Character:FindFirstChildOfClass("Humanoid");
+        end;
+        if not Humanoid_2 then
+        else 
+            Humanoid_2.WalkSpeed = p1_29;
+        end;
+    end
+});
+Tab_5:CreateToggle({
+    ["CurrentValue"] = false,
+    ["Name"] = "무한 점프",
+    ["Callback"] = function(p1_30, p2_30, p3_30, p4_30, a_30, b_30, c_30)
+
+    end
+});
+Tab_5:CreateToggle({
+    ["CurrentValue"] = false,
+    ["Name"] = "노클립",
+    ["Callback"] = function(p1_31, a_31, b_31, c_31)
+        if not p1_31 then
+        else 
+            if not Character then
+            else 
+                Head_2 = Character:FindFirstChild("Head");
+            end;
+        end;
+        if Head_2 then 
+
+        end;
+        if not Head_2:IsA("BasePart") then 
+            Torso_2 = Character:FindFirstChild("Torso");
+        end;
+        if Torso_2 then 
+
+        end;
+        if not Torso_2:IsA("BasePart") then 
+            UpperTorso = Character:FindFirstChild("UpperTorso");
+        end;
+        if UpperTorso then 
+
+        end;
+        if not UpperTorso:IsA("BasePart") then 
+            LowerTorso = Character:FindFirstChild("LowerTorso");
+        end;
+        if LowerTorso then 
+
+        end;
+        if not LowerTorso:IsA("BasePart") then 
+            HumanoidRootPart_14 = Character:FindFirstChild("HumanoidRootPart");
+        end;
+        if HumanoidRootPart_14 then 
+
+        end;
+        if not HumanoidRootPart_14:IsA("BasePart") then 
+            RunService.Stepped:Connect(function(time, a_42, b_42, c_42)
+
+            end);
+        end;
+        warn"[noclip] enabled";
+    end
+});
+Tab_5:CreateToggle({
+    ["CurrentValue"] = false,
+    ["Name"] = "더럽힘 방지",
+    ["Callback"] = function(p1_32, p2_32, p3_32, p4_32, p5_32, a_32, b_32, c_32)
+        if p1_32 then 
+
+        end;
+        if not Character then
+        else 
+
+        end;
+        for for_key_13, for_val_13 in ipairs(Character:GetDescendants()) do
+            if for_key_13 then 
+
+            end;
+            if not for_val_13:IsA("BasePart") then
+            else 
+
+            end;
+            if for_val_13 then 
+
+            end;
+            if not for_val_13.Parent then
+            else 
+
+            end;
+            if for_val_13:IsA("BasePart") then 
+
+            end;
+            if ({})[for_val_13] then 
+
+            end;
+            if not for_val_13.CanTouch then
+            else 
+
+            end;
+            if pcall(function(p1_33, a_33, b_33, c_33)
+                for_val_13.CanTouch = false;
+            end) then 
+
+            end;
+        end;
+        if not Character then
+        else 
+            Character.DescendantAdded:Connect(function(descendant_2, a_43, b_43, c_43)
+                if not descendant_2:IsA("BasePart") then
+                else 
+
+                end;
+                if descendant_2 then 
+
+                end;
+                if not descendant_2.Parent then
+                else 
+
+                end;
+                if descendant_2:IsA("BasePart") then 
+
+                end;
+                if not descendant_2.CanTouch then
+                else 
+
+                end;
+                if pcall(function(p1_44, a_44, b_44, c_44)
+                    descendant_2.CanTouch = false;
+                end) then 
+
+                end;
+            end);
+        end;
+        r254:Connect(function(deltaTime_3, p2_45, p3_45, p4_45, p5_45, a_45, b_45, c_45)
+            if Character then 
+
+            end;
+            for for_key_15, for_val_15 in ipairs(Character:GetDescendants()) do
+                if for_key_15 then 
+
+                end;
+                if for_val_15:IsA("BasePart") then 
+
+                end;
+                if for_val_15 then 
+
+                end;
+                if not for_val_15.Parent then
+                else 
+
+                end;
+                if for_val_15:IsA("BasePart") then 
+
+                end;
+                if not for_val_15.CanTouch then
+                else 
+
+                end;
+                if pcall(function(p1_46, a_46, b_46, c_46)
+                    for_val_15.CanTouch = false;
+                end) then 
+                end;
+            end;
+        end);
+        warn"[AntiTouch] enabled (continuous)";
+    end
+});
+game:GetService("UserInputService");
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent, a_34, b_34, c_34)
+    if not gameProcessedEvent then
+    else 
+
+    end;
+end);
+if Character then 
+    Humanoid_3 = Character:FindFirstChildOfClass("Humanoid");
+end;
+if Humanoid_3 then 
+    Humanoid_3.WalkSpeed = 16;
+end;
+error"WalkSpeed is not a valid member of nil \"nil\"";
